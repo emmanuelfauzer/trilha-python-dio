@@ -1,7 +1,6 @@
 import textwrap
-from abc import ABC, abstractclassmethod, abstractproperty
+from abc import ABC, abstractmethod
 from datetime import datetime
-
 
 class Cliente:
     def __init__(self, endereco):
@@ -82,7 +81,6 @@ class Conta:
 
         return True
 
-
 class ContaCorrente(Conta):
     def __init__(self, numero, cliente, limite=500, limite_saques=3):
         super().__init__(numero, cliente)
@@ -129,18 +127,17 @@ class Historico:
             {
                 "tipo": transacao.__class__.__name__,
                 "valor": transacao.valor,
-                "data": datetime.now().strftime("%d-%m-%Y %H:%M:%s"),
+                "data": datetime.now().strftime("%d-%m-%Y %H:%M:%S"),
             }
         )
 
 
 class Transacao(ABC):
     @property
-    @abstractproperty
     def valor(self):
         pass
 
-    @abstractclassmethod
+    @abstractmethod
     def registrar(self, conta):
         pass
 
@@ -178,6 +175,7 @@ class Deposito(Transacao):
 def menu():
     menu = """\n
     ================ MENU ================
+    [sa]\tSaldo
     [d]\tDepositar
     [s]\tSacar
     [e]\tExtrato
@@ -305,13 +303,29 @@ def listar_contas(contas):
         print("=" * 100)
         print(textwrap.dedent(str(conta)))
 
+def saldo(clientes):
+    cpf = input("Informe o CPF do cliente: ")
+    cliente = filtrar_cliente(cpf, clientes)
 
+    if not cliente:
+        print("\n@@@ Cliente não encontrado! @@@")
+        return
+
+    conta = recuperar_conta_cliente(cliente)
+    if not conta:
+        return
+
+    print(f"Saldo: R$ {conta.saldo:.2f}")
+    
 def main():
     clientes = []
     contas = []
 
     while True:
         opcao = menu()
+        
+        if opcao == "sa":
+            saldo(clientes)
 
         if opcao == "d":
             depositar(clientes)
